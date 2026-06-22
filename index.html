@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CAF Rates &amp; Markets Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1822; --panel:#16202C; --panel2:#1B2735; --line:#243240;
+    --text:#E8E6DF; --muted:#8A97A6; --faint:#5C6878; --brass:#C8A24A;
+    --up:#E0635A; --down:#4FB286;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;padding:20px 18px 40px;min-height:100vh}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{letter-spacing:.18em;text-transform:uppercase}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  h1{font-size:26px;font-weight:700;letter-spacing:-.01em}
+  .kicker{font-size:10px;color:var(--brass);margin-bottom:6px}
+  .status{display:flex;align-items:center;gap:14px}
+  .stxt{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--down);display:inline-block}
+  .dot.busy{background:var(--brass);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.dot.busy{animation:none}}
+  button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:border-color .14s,color .14s}
+  button:hover:not(:disabled){border-color:var(--brass);color:var(--text)}
+  button:disabled{opacity:.5;cursor:default}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:880px){.grid{grid-template-columns:1.45fr 1fr}}
+  .col{display:flex;flex-direction:column;gap:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  .phead{display:flex;justify-content:space-between;align-items:baseline;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phead .t{font-size:11px;color:var(--brass);font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+  .phead .r{font-size:11px;color:var(--faint)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:right;font-weight:500;font-size:10px;color:var(--faint);letter-spacing:.18em;text-transform:uppercase;padding:4px 0}
+  th.l{text-align:left}
+  td{padding:9px 0}
+  tr.hover:hover{background:var(--panel2)}
+  .tx{padding:10px 16px 4px}
+  .lvl{text-align:right;font-size:15px;font-weight:500}
+  .ten{font-size:14px;color:var(--muted)}
+  .chg{font-size:13px}
+  .chg .u{font-size:11px;color:var(--faint)}
+  .curvewrap{padding:6px 16px 14px}
+  .curvelbl{font-size:9px;color:var(--faint);letter-spacing:.18em;text-transform:uppercase;margin-bottom:2px}
+  .foreign{border-top:1px solid var(--line);padding:12px 16px}
+  .frow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;color:var(--muted)}
+  .frow .v{display:flex;gap:14px;align-items:center}
+  .frow .v .lvl2{font-size:14px;color:var(--text)}
+  .legend{padding:4px 16px 12px;font-size:10px;color:var(--faint)}
+  .commentary{padding:16px;font-size:14px;line-height:1.62}
+  .news{padding:10px 14px 14px}
+  .nitem{display:block;border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin-top:10px;background:var(--panel2);text-decoration:none;color:inherit;transition:border-color .14s}
+  .nitem:hover{border-color:var(--brass)}
+  .nmeta{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;font-size:9px}
+  .ntag{color:var(--brass);letter-spacing:.18em;text-transform:uppercase}
+  .nsrc{color:var(--faint)}
+  .nhead{font-size:14px;font-weight:500;line-height:1.35;margin-bottom:4px}
+  .ndate{font-size:11px;color:var(--muted)}
+  .skel{height:14px;background:var(--panel2);border-radius:4px;margin:12px 16px;opacity:.6}
+  .err{padding:18px;color:var(--muted);font-size:13px}
+  footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.6}
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker eyebrow mono">CAF Capital Partners · Dallas–Fort Worth</div>
+      <h1>Rates &amp; Markets Desk</h1>
+    </div>
+    <div class="status">
+      <span class="stxt"><span id="dot" class="dot busy"></span><span id="stxt">Updating…</span></span>
+      <button id="refresh">Refresh</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel">
+        <div class="phead"><span class="t">US Treasuries &amp; SOFR</span><span class="r" id="ratesAsOf"></span></div>
+        <div id="ratesBody"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </section>
+      <section class="panel">
+        <div class="phead"><span class="t">What's Driving Today</span></div>
+        <div id="commentaryBody"><div class="skel"></div><div class="skel"></div></div>
+      </section>
+    </div>
+    <div class="col">
+      <section class="panel">
+        <div class="phead"><span class="t">CRE News · CAF Relevance</span></div>
+        <div id="newsBody"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    Treasury par yields source: U.S. Treasury (published ~3:30pm ET each trading day). SOFR source: Federal Reserve Bank of New York (published ~8:00am ET, prior business day). News via public CRE RSS feeds. Commentary generated from the day's moves. Informational only — not investment advice. Subject to source redistribution terms; intended for internal CAF use.
+  </footer>
+</div>
+
+<script>
+const TENOR_X={ "2Y":2,"5Y":5,"7Y":7,"10Y":10,"30Y":30 };
+
+function changeHtml(bps){
+  if(bps===null||bps===undefined||isNaN(bps)) return '<span style="color:var(--faint)">—</span>';
+  const up=bps>0, flat=bps===0;
+  const color=flat?'var(--muted)':up?'var(--up)':'var(--down)';
+  const arrow=flat?'·':up?'▲':'▼';
+  const val=(up?'+':'')+Number(bps).toFixed(1);
+  return '<span class="chg mono" style="color:'+color+'">'+arrow+' '+val+' <span class="u">bps</span></span>';
+}
+
+function curveSvg(treasuries){
+  const pts=treasuries.filter(t=>TENOR_X[t.tenor]).map(t=>({x:TENOR_X[t.tenor],y:t.yield}));
+  if(pts.length<2) return '';
+  const w=100,h=46,pad=4;
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const sx=x=>pad+((x-minX)/((maxX-minX)||1))*(w-pad*2);
+  const sy=y=>h-pad-((y-minY)/((maxY-minY)||1))*(h-pad*2);
+  const path=pts.map((p,i)=>(i?'L':'M')+sx(p.x).toFixed(1)+' '+sy(p.y).toFixed(1)).join(' ');
+  let dots=pts.map(p=>'<circle cx="'+sx(p.x).toFixed(1)+'" cy="'+sy(p.y).toFixed(1)+'" r="1.4" fill="var(--text)"/>').join('');
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="64" preserveAspectRatio="none" aria-label="Treasury yield curve">'
+    +'<path d="'+path+'" fill="none" stroke="var(--brass)" stroke-width="1.1" stroke-linejoin="round"/>'+dots+'</svg>';
+}
+
+function renderRates(d){
+  document.getElementById('ratesAsOf').textContent=d.asOf||'';
+  let rows=d.treasuries.map(t=>
+    '<tr class="hover"><td class="ten mono">'+t.tenor+'</td>'
+    +'<td class="lvl mono">'+t.yield.toFixed(2)+'%</td>'
+    +'<td style="text-align:right">'+changeHtml(t.changeBps)+'</td></tr>').join('');
+  rows+='<tr class="hover" style="border-top:1px solid var(--line)"><td class="ten mono" style="color:var(--brass)">SOFR</td>'
+    +'<td class="lvl mono">'+d.sofr.rate.toFixed(2)+'%</td>'
+    +'<td style="text-align:right">'+changeHtml(d.sofr.changeBps)+'</td></tr>';
+  let foreign='';
+  if(d.foreign&&d.foreign.length){
+    foreign='<div class="foreign"><div class="curvelbl">Global 10Y</div>'+
+      d.foreign.map(f=>'<div class="frow"><span>'+f.name+'</span><span class="v"><span class="lvl2 mono">'
+        +f.yield.toFixed(2)+'%</span><span style="min-width:78px;text-align:right">'+changeHtml(f.changeBps)+'</span></span></div>').join('')+'</div>';
+  }
+  document.getElementById('ratesBody').innerHTML=
+    '<div class="tx"><table><thead><tr><th class="l">Tenor</th><th>Yield</th><th>Δ Session</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="curvewrap"><div class="curvelbl">Yield curve (2Y → 30Y)</div>'+curveSvg(d.treasuries)+'</div>'
+    +foreign
+    +'<div class="legend"><span style="color:var(--up)">▲</span> yield higher vs prior session · <span style="color:var(--down)">▼</span> lower</div>';
+}
+
+function renderNews(items){
+  if(!items||!items.length){ document.getElementById('newsBody').innerHTML='<div class="err">No headlines returned right now. Try Refresh.</div>'; return; }
+  document.getElementById('newsBody').innerHTML='<div class="news">'+items.map(it=>
+    '<a class="nitem" href="'+it.url+'" target="_blank" rel="noopener noreferrer">'
+    +'<div class="nmeta"><span class="ntag mono">'+(it.tag||'CRE')+'</span><span class="nsrc mono">'+(it.source||'')+'</span></div>'
+    +'<div class="nhead">'+it.headline+'</div>'
+    +(it.whyItMatters?'<div class="ndate" style="color:var(--muted)">'+it.whyItMatters+'</div>':(it.date?'<div class="ndate">'+it.date+'</div>':''))
+    +'</a>').join('')+'</div>';
+}
+
+function errBlock(id,onRetryName){
+  document.getElementById(id).innerHTML='<div class="err">Couldn\'t load this section. <button onclick="'+onRetryName+'()" style="margin-left:8px">Retry</button></div>';
+}
+
+async function loadRates(){
+  document.getElementById('ratesBody').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  try{
+    const r=await fetch('/.netlify/functions/rates'); if(!r.ok) throw 0;
+    const d=await r.json(); renderRates(d);
+    loadCommentary(d);
+    return d;
+  }catch(e){ errBlock('ratesBody','loadRates'); document.getElementById('commentaryBody').innerHTML='<div class="err">Commentary loads with market data.</div>'; }
+}
+async function loadCommentary(rates){
+  document.getElementById('commentaryBody').innerHTML='<div class="skel"></div><div class="skel"></div>';
+  try{
+    const r=await fetch('/.netlify/functions/commentary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rates)});
+    if(!r.ok) throw 0;
+    const d=await r.json();
+    document.getElementById('commentaryBody').innerHTML='<p class="commentary">'+d.commentary+'</p>';
+  }catch(e){ document.getElementById('commentaryBody').innerHTML='<div class="err">Commentary unavailable. Check that ANTHROPIC_API_KEY is set in Netlify.</div>'; }
+}
+async function loadNews(){
+  document.getElementById('newsBody').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  try{
+    const r=await fetch('/.netlify/functions/news'); if(!r.ok) throw 0;
+    const d=await r.json(); renderNews(d.items);
+  }catch(e){ errBlock('newsBody','loadNews'); }
+}
+
+function setBusy(b){
+  document.getElementById('dot').className='dot'+(b?' busy':'');
+  document.getElementById('refresh').disabled=b;
+  document.getElementById('stxt').textContent=b?'Updating…':'Updated '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+async function refreshAll(){ setBusy(true); await Promise.all([loadRates(),loadNews()]); setBusy(false); }
+document.getElementById('refresh').addEventListener('click',refreshAll);
+refreshAll();
+</script>
+</body>
+</html>
