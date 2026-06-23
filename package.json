@@ -1,8 +1,0 @@
-{
-  "name": "caf-rates-desk",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "CAF rates & CRE news dashboard — static front-end + Netlify functions",
-  "engines": { "node": ">=18" }
-}
